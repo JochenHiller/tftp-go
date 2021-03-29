@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -44,7 +45,20 @@ func main() {
 		panic(err)
 	}
 
-	h := Handler{Path: pwd}
-	err = tftp.ListenAndServe("", h)
-	panic(err)
+	if len(os.Args) <= 1 {
+		fmt.Fprintf(os.Stderr, "Usage: tftp-go <ip-address> [<port>]\n")
+		fmt.Fprintf(os.Stderr, "  port defaults to 69 if not specified\n")
+		os.Exit(1)
+	} else {
+		h := Handler{Path: pwd}
+
+		port := "69"
+		if len(os.Args) > 2 {
+			port = os.Args[2]
+		}
+		addr := os.Args[1] + ":" + port
+		fmt.Printf("Running tftp-server on address %s ...\n", addr)
+		err = tftp.ListenAndServe(addr, h)
+		panic(err)
+	}
 }
